@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { INITIAL_FOLDERS, PROJECTS, createProject, statusOf, type Folder, type NewProject, type Project } from './data';
+import { INITIAL_FOLDERS, NO_FOLDER, PROJECTS, createProject, statusOf, type Folder, type NewProject, type Project } from './data';
 import { buildGroups, countByTab, type GroupBy, type SortBy, type Tab } from './model';
 import { PROJECTS_HREF, projectHref, useRoute } from './route';
 import { AiLauncher, AiPanel } from './components/AiPanel';
@@ -25,7 +25,8 @@ export function App() {
   const [query, setQuery] = useState('');
   const [aiOpen, setAiOpen] = useState(false);
   const [favs, setFavs] = useState<Set<number>>(() => new Set([0]));
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  // The Ready group starts collapsed; finished projects need the least attention.
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set(['status:ready']));
   // Project rows open independently; all start closed.
   const [expanded, setExpanded] = useState<Set<number>>(() => new Set());
   const [folders, setFolders] = useState<Folder[]>(INITIAL_FOLDERS);
@@ -74,13 +75,25 @@ export function App() {
     });
   };
 
+  // Picking a status tab opens that status's group, so the filtered projects aren't hidden behind a collapsed bar.
+  const selectTab = (next: Tab) => {
+    setTab(next);
+    if (next === 'all') return;
+    setCollapsed((c) => {
+      const open = new Set(c);
+      open.delete(`status:${next}`);
+      return open;
+    });
+  };
+
   const addProject = (input: NewProject) => {
     const id = Math.max(-1, ...projects.map((p) => p.id)) + 1;
-    // Created from a folder page, the project goes into that folder.
-    const project = createProject(id, input, folder?.id);
+    const project = createProject(id, input);
     setProjects((ps) => [...ps, project]);
     setCreateProjectOpen(false);
     reveal(project);
+    // Added to a different folder than the one on screen: go where the project can be seen.
+    if (folder && project.folder !== folder.id) window.location.hash = PROJECTS_HREF;
   };
 
   // A copied project link opens the projects page with that project expanded and highlighted.
@@ -168,7 +181,7 @@ export function App() {
               </div>
             )}
 
-            <Toolbar tab={tab} counts={counts} onTab={setTab} query={query} onQuery={setQuery} sortBy={sortBy} onSort={setSortBy} />
+            <Toolbar tab={tab} counts={counts} onTab={selectTab} query={query} onQuery={setQuery} sortBy={sortBy} onSort={setSortBy} />
 
             <ProjectTable
               groups={groups}
@@ -205,6 +218,8 @@ export function App() {
         open={createProjectOpen}
         existingNames={projects.map((p) => p.name)}
         existingKeys={projects.flatMap((p) => (p.key ? [p.key] : []))}
+        folders={folders}
+        defaultFolder={folder?.id ?? NO_FOLDER}
         onCancel={() => setCreateProjectOpen(false)}
         onCreate={addProject}
       />

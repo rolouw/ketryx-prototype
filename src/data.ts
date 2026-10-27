@@ -41,6 +41,8 @@ export interface NewProject {
   name: string;
   key: string;
   repositories: string[];
+  /** A folder id, or NO_FOLDER. */
+  folder: string;
 }
 
 export const STATUS: Record<StatusKey, { label: string; color: string; head: string; ink: string }> = {
@@ -82,7 +84,7 @@ export function statusOf(p: Project): StatusKey {
 }
 
 /** A freshly created project: no folder, no design or test data yet, so it starts as Not started. */
-export function createProject(id: number, { name, key, repositories }: NewProject, folder: string = NO_FOLDER): Project {
+export function createProject(id: number, { name, key, repositories, folder }: NewProject): Project {
   return {
     id,
     name,

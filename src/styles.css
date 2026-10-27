@@ -2,7 +2,7 @@
   /* Brand */
   --teal: #003f48;
   --blue: #1d87f7;
-  --blue-dark: #1769c1; /* filled buttons, darkened for contrast */
+  --blue-dark: #1769c1; /* primary button hover */
   --blue-tint: #e3f0fe;
   --blue-ink: #0b4a94;
   --green: #21a33f;
@@ -368,11 +368,11 @@ h1 {
 }
 .btn-primary {
   padding: 0 22px;
-  background: var(--blue-dark);
+  background: var(--blue);
   color: #fff;
 }
 .btn-primary:hover {
-  background: var(--link-hover);
+  background: var(--blue-dark);
 }
 
 .groupby-row {
@@ -1225,9 +1225,37 @@ h1 {
   background: var(--surface);
   font-size: 14px;
 }
-.field input:focus {
+.field input:focus,
+.field select:focus {
   outline: 0;
   border-color: var(--blue);
+}
+
+/* Native select styled like the text fields, with our own chevron. */
+.select-wrap {
+  position: relative;
+  display: flex;
+}
+.select-wrap select {
+  flex: 1;
+  height: 44px;
+  padding: 0 44px 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-field);
+  background: var(--surface);
+  font-size: 14px;
+  appearance: none;
+  cursor: pointer;
+}
+.select-wrap select:hover:not(:focus) {
+  border-color: var(--outline-hover);
+}
+.select-wrap svg {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 .field input[aria-invalid='true'] {
   border-color: #c4314b;

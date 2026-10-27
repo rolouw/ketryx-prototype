@@ -1,7 +1,7 @@
 import { useId, useState, type KeyboardEvent } from 'react';
 import { Collapse } from './Collapse';
 import { ICONS, Icon } from './Icon';
-import type { NewProject } from '../data';
+import { NO_FOLDER, NO_FOLDER_LABEL, type Folder, type NewProject } from '../data';
 import { Modal } from './Modal';
 
 interface CreateProjectDialogProps {
@@ -10,6 +10,9 @@ interface CreateProjectDialogProps {
   existingNames: string[];
   /** Project keys already taken. */
   existingKeys: string[];
+  folders: Folder[];
+  /** Preselected folder id, e.g. the folder page the dialog was opened from. */
+  defaultFolder: string;
   onCancel: () => void;
   onCreate: (project: NewProject) => void;
 }
@@ -25,9 +28,10 @@ export function CreateProjectDialog({ open, onCancel, ...rest }: CreateProjectDi
 /** Keys are upper-case letters and digits, starting with a letter. */
 const toKey = (value: string) => value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
 
-function CreateProjectForm({ existingNames, existingKeys, onCancel, onCreate }: Omit<CreateProjectDialogProps, 'open'>) {
+function CreateProjectForm({ existingNames, existingKeys, folders, defaultFolder, onCancel, onCreate }: Omit<CreateProjectDialogProps, 'open'>) {
   const [name, setName] = useState('');
   const [key, setKey] = useState('');
+  const [folder, setFolder] = useState(defaultFolder);
   const [repositories, setRepositories] = useState<string[]>([]);
 
   const trimmed = name.trim();
@@ -40,7 +44,7 @@ function CreateProjectForm({ existingNames, existingKeys, onCancel, onCreate }: 
       className="modal-body"
       onSubmit={(e) => {
         e.preventDefault();
-        if (canCreate) onCreate({ name: trimmed, key, repositories });
+        if (canCreate) onCreate({ name: trimmed, key, repositories, folder });
       }}
     >
       <h2 id="create-project-title">Create project</h2>
@@ -78,6 +82,21 @@ function CreateProjectForm({ existingNames, existingKeys, onCancel, onCreate }: 
       <p id="project-key-hint" className={keyError ? 'field-error' : 'field-hint'}>
         {keyError ?? 'Sets the middle part of Ketryx item keys (e.g. KX-PROJ-1 where PROJ is the project key).'}
       </p>
+
+      <label className="field field-spaced">
+        <span className="field-label is-regular">Add to which folder</span>
+        <span className="select-wrap">
+          <select value={folder} onChange={(e) => setFolder(e.target.value)}>
+            <option value={NO_FOLDER}>{NO_FOLDER_LABEL}</option>
+            {folders.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+          <Icon d={ICONS.chevronDown} size={16} strokeWidth={2.2} />
+        </span>
+      </label>
 
       <div className="section-head">
         <h3>Organization connections</h3>
