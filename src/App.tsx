@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { INITIAL_FOLDERS, NO_FOLDER, PROJECTS, createProject, type Folder, type NewProject, type Project } from './data';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { INITIAL_FOLDERS, PROJECTS, createProject, statusOf, type Folder, type NewProject, type Project } from './data';
 import { buildGroups, countByTab, type GroupBy, type SortBy, type Tab } from './model';
-import { PROJECTS_HREF, useRoute } from './route';
+import { PROJECTS_HREF, projectHref, useRoute } from './route';
 import { AiLauncher, AiPanel } from './components/AiPanel';
 import { CreateProjectDialog } from './components/CreateProjectDialog';
 import { ICONS, Icon } from './components/Icon';
 import { NewFolderDialog } from './components/NewFolderDialog';
 import { ProjectTable } from './components/ProjectTable';
 import { Sidebar } from './components/Sidebar';
+import { Toast, type ToastMessage } from './components/Toast';
 import { GroupBySwitch, Toolbar } from './components/Toolbar';
 
 function toggleIn<T>(set: Set<T>, value: T): Set<T> {
@@ -59,21 +60,60 @@ export function App() {
     document.title = folder ? `${folder.label} · Projects · Ketryx` : 'Projects · Ketryx';
   }, [folder]);
 
+  // Makes sure a project isn't hidden by the current filters or a collapsed group, then flashes it.
+  const reveal = (p: Project) => {
+    setHighlightId(p.id);
+    const status = statusOf(p);
+    if (tab !== 'all' && tab !== status) setTab('all');
+    if (query && !p.name.toLowerCase().includes(query.trim().toLowerCase())) setQuery('');
+    setCollapsed((c) => {
+      const next = new Set(c);
+      next.delete(`status:${status}`);
+      next.delete(`folder:${p.folder}`);
+      return next;
+    });
+  };
+
   const addProject = (input: NewProject) => {
     const id = Math.max(-1, ...projects.map((p) => p.id)) + 1;
     // Created from a folder page, the project goes into that folder.
-    setProjects((ps) => [...ps, createProject(id, input, folder?.id)]);
+    const project = createProject(id, input, folder?.id);
+    setProjects((ps) => [...ps, project]);
     setCreateProjectOpen(false);
-    setHighlightId(id);
-    // Make sure the new project isn't hidden by the current filters or a collapsed group.
-    if (tab !== 'all' && tab !== 'not') setTab('all');
-    if (query && !input.name.toLowerCase().includes(query.trim().toLowerCase())) setQuery('');
-    setCollapsed((c) => {
-      const next = new Set(c);
-      next.delete('status:not');
-      next.delete(`folder:${folder?.id ?? NO_FOLDER}`);
-      return next;
+    reveal(project);
+  };
+
+  // A copied project link opens the projects page with that project expanded and highlighted.
+  useEffect(() => {
+    const p = route.projectId === null ? undefined : projects.find((x) => x.id === route.projectId);
+    if (!p) return;
+    setExpanded((e) => new Set(e).add(p.id));
+    reveal(p);
+    // Only react to the link itself, not to later edits of the project list.
+  }, [route.projectId]);
+
+  const [toast, setToast] = useState<ToastMessage | null>(null);
+  const dismissToast = useCallback(() => setToast(null), []);
+  const showToast = (text: string, onUndo?: () => void) => setToast({ key: Date.now(), text, onUndo });
+
+  // Archived projects aren't shown anywhere yet, so archiving removes the row just like deleting it.
+  const removeProject = (id: number, verb: 'Deleted' | 'Archived') => {
+    const index = projects.findIndex((p) => p.id === id);
+    const project = projects[index];
+    if (!project) return;
+    setProjects((ps) => ps.filter((p) => p.id !== id));
+    showToast(`${verb} “${project.name}”`, () => {
+      setProjects((ps) => [...ps.slice(0, index), project, ...ps.slice(index)]);
+      reveal(project);
     });
+  };
+
+  const copyProjectLink = (id: number) => {
+    const url = `${window.location.origin}${window.location.pathname}${projectHref(id)}`;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => showToast('Link copied to clipboard'))
+      .catch(() => showToast('Couldn’t copy the link'));
   };
 
   const createFolder = (label: string) => {
@@ -140,6 +180,9 @@ export function App() {
               onToggleProject={(id) => setExpanded((e) => toggleIn(e, id))}
               favs={favs}
               onToggleFav={(id) => setFavs((f) => toggleIn(f, id))}
+              onDelete={(id) => removeProject(id, 'Deleted')}
+              onArchive={(id) => removeProject(id, 'Archived')}
+              onCopyLink={copyProjectLink}
               highlightId={highlightId}
               emptyMessage={folder && scoped.length === 0 ? 'No projects in this folder yet. Create one to get started.' : undefined}
             />
@@ -165,6 +208,8 @@ export function App() {
         onCancel={() => setCreateProjectOpen(false)}
         onCreate={addProject}
       />
+
+      <Toast toast={toast} onDismiss={dismissToast} />
     </div>
   );
 }

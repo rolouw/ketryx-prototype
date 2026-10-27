@@ -12,9 +12,9 @@ npm run dev   # http://localhost:5173
 - `src/components/`: sidebar, toolbar, project table, readiness rings, status glyph, AI panel
 - `src/styles.css`: design tokens as CSS variables on `:root`, plus all component styles
 
-Interactive: status tabs, search, sort, Group by, collapsible groups, project phase accordions, favorites,
+Interactive: status tabs, search, sort, Group by, collapsible groups, project phase accordions, favorites, row actions menu (delete, archive, copy link),
 New folder and Create project modals, folder pages (`#/projects/folders/<id>`), collapsible sidebar, AI assistant panel.
-Placeholders: other nav links, More actions, Manage connections, Learn & Assist. Nothing is saved; a refresh resets the data.
+Placeholders: other nav links, Manage connections, Learn & Assist. Nothing is saved; a refresh resets the data.
 
 ## Publishing (GitHub Pages)
 

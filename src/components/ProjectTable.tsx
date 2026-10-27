@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { NO_FOLDER, NO_FOLDER_LABEL, STATUS, readinessOf, statusOf, type Folder, type Project } from '../data';
 import type { Group } from '../model';
 import { currentPhaseIndex } from '../phases';
@@ -6,6 +6,7 @@ import { folderHref } from '../route';
 import { Collapse } from './Collapse';
 import { ICONS, Icon } from './Icon';
 import { PhasesPanel } from './PhasesPanel';
+import { RowMenu } from './RowMenu';
 import { Ring } from './Ring';
 import { StatusGlyph } from './StatusGlyph';
 import { Tooltip } from './Tooltip';
@@ -20,6 +21,9 @@ interface ProjectTableProps {
   onToggleProject: (id: number) => void;
   favs: Set<number>;
   onToggleFav: (id: number) => void;
+  onDelete: (id: number) => void;
+  onArchive: (id: number) => void;
+  onCopyLink: (id: number) => void;
   /** A just-created project to flash and scroll into view. */
   highlightId: number | null;
   /** Replaces the default "no matches" text when there are no groups to show. */
@@ -36,6 +40,9 @@ export function ProjectTable({
   onToggleProject,
   favs,
   onToggleFav,
+  onDelete,
+  onArchive,
+  onCopyLink,
   highlightId,
   emptyMessage = 'No projects match these filters. Clear the filter or choose another status.',
 }: ProjectTableProps) {
@@ -135,6 +142,9 @@ export function ProjectTable({
                       onToggle={() => onToggleProject(p.id)}
                       fav={favs.has(p.id)}
                       onToggleFav={() => onToggleFav(p.id)}
+                      onDelete={() => onDelete(p.id)}
+                      onArchive={() => onArchive(p.id)}
+                      onCopyLink={() => onCopyLink(p.id)}
                       highlighted={p.id === highlightId}
                     />
                   ))}
@@ -158,13 +168,13 @@ interface ProjectRowProps {
   onToggle: () => void;
   fav: boolean;
   onToggleFav: () => void;
+  onDelete: () => void;
+  onArchive: () => void;
+  onCopyLink: () => void;
   highlighted: boolean;
 }
 
-// Controls inside the row must not also toggle the row.
-const stop = (e: MouseEvent) => e.stopPropagation();
-
-function ProjectRow({ project: p, folderLabel, expanded, onToggle, fav, onToggleFav, highlighted }: ProjectRowProps) {
+function ProjectRow({ project: p, folderLabel, expanded, onToggle, fav, onToggleFav, onDelete, onArchive, onCopyLink, highlighted }: ProjectRowProps) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (highlighted) ref.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -219,13 +229,6 @@ function ProjectRow({ project: p, folderLabel, expanded, onToggle, fav, onToggle
         </div>
         <span className="cell">{p.items}</span>
         <span className="cell muted">{p.updated}</span>
-        <button type="button" className="icon-btn" aria-label={`More actions for ${p.name}`} onClick={stop}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <circle cx="5" cy="12" r="1.8" />
-            <circle cx="12" cy="12" r="1.8" />
-            <circle cx="19" cy="12" r="1.8" />
-          </svg>
-        </button>
         <button
           type="button"
           className="icon-btn"
@@ -240,6 +243,17 @@ function ProjectRow({ project: p, folderLabel, expanded, onToggle, fav, onToggle
             <path d={ICONS.heart} />
           </svg>
         </button>
+        {/* Clicks inside the menu cell must not also toggle the row. */}
+        <span className="row-menu" onClick={(e) => e.stopPropagation()}>
+          <RowMenu
+            label={`More actions for ${p.name}`}
+            items={[
+              { label: 'Delete project', icon: ICONS.trash, onSelect: onDelete, danger: true },
+              { label: 'Archive', icon: ICONS.archive, onSelect: onArchive },
+              { label: 'Copy link to project', icon: ICONS.link, onSelect: onCopyLink },
+            ]}
+          />
+        </span>
       </article>
       <Collapse open={expanded}>
         <PhasesPanel phases={p.phases} />

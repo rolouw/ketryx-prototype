@@ -63,7 +63,7 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
   return (
     <li className="milestone">
       <div className="milestone-head">
-        <StatusGlyph status={status} pct={percentOf(progress)} size={16} label={`${milestone.name} ${STATE_TEXT[status]}`} />
+        <StatusGlyph status={status} pct={percentOf(progress)} size={20} label={`${milestone.name} ${STATE_TEXT[status]}`} />
         <span className="milestone-name">{milestone.name}</span>
         <span className="milestone-count">
           {progress.done}/{progress.total}
@@ -75,8 +75,8 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
           <li key={d.label} className={d.done ? 'deliverable is-done' : 'deliverable'}>
             <span className="checkbox" aria-hidden="true">
               {d.done && (
-                <svg width="10" height="10" viewBox="0 0 16 16">
-                  <path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="11" height="11" viewBox="0 0 16 16">
+                  <path d="M3.5 8.5l3 3 6-6.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
             </span>

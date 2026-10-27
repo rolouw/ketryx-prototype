@@ -697,11 +697,11 @@ h1 {
   background: var(--divider);
 }
 .row-chevron svg {
-  transform: rotate(-90deg);
   transition: transform var(--motion);
 }
+/* Points down while closed, up while open */
 .row-chevron[aria-expanded='true'] svg {
-  transform: none;
+  transform: rotate(180deg);
 }
 
 .status-glyph {
@@ -894,9 +894,14 @@ h1 {
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
+  box-shadow: 0 1px 2px rgba(0, 63, 72, 0.06), 0 2px 6px rgba(0, 63, 72, 0.06);
+  transition: box-shadow var(--motion), transform var(--motion);
+}
+.milestone:hover {
+  box-shadow: 0 2px 4px rgba(0, 63, 72, 0.06), 0 10px 24px rgba(0, 63, 72, 0.12);
+  transform: translateY(-1px);
 }
 .milestone-head {
   display: flex;
@@ -904,7 +909,8 @@ h1 {
   gap: 8px;
 }
 .milestone-head .status-glyph {
-  margin-top: 1px; /* aligns with the first line of the name */
+  /* 20px glyph draws an 18px circle, matching the deliverable checks; centred on the first line of the name */
+  margin-top: -1.5px;
 }
 .milestone-name {
   font-size: 13px;
@@ -938,18 +944,19 @@ h1 {
 }
 .checkbox {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border: 1.5px solid var(--no-folder);
-  border-radius: 5px;
+  border-radius: 50%;
   background: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .is-done .checkbox {
-  border-color: var(--green);
-  background: var(--green);
+  border-color: var(--mint);
+  background: var(--mint);
+  color: var(--green-ink);
 }
 
 .icon-btn {
@@ -964,8 +971,106 @@ h1 {
   align-items: center;
   justify-content: center;
 }
-.icon-btn:hover {
+.icon-btn:hover,
+.icon-btn.is-active {
   background: var(--divider);
+}
+
+/* ---------- Row actions menu ---------- */
+
+.row-menu {
+  display: flex;
+}
+
+.menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 220px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(0, 63, 72, 0.16);
+  display: flex;
+  flex-direction: column;
+  animation: menu-in 0.15s ease-out;
+}
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--teal);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+.menu-item:hover,
+.menu-item:focus-visible {
+  background: var(--divider);
+  outline: none;
+}
+.menu-item.is-danger {
+  color: #b42318;
+}
+
+/* ---------- Toast ---------- */
+
+.toast-region {
+  position: fixed;
+  z-index: 110;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 10px 10px 18px;
+  border-radius: var(--r-pill);
+  background: var(--teal);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 12px 32px rgba(0, 63, 72, 0.24);
+  animation: toast-in 0.2s ease-out;
+}
+.toast:not(:has(.toast-undo)) {
+  padding-right: 18px;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.toast-undo {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.toast-undo:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .heart {
@@ -1326,8 +1431,16 @@ h1 {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .project.is-new {
+  .project.is-new,
+  .menu,
+  .toast {
     animation: none;
+  }
+  .milestone {
+    transition: none;
+  }
+  .milestone:hover {
+    transform: none;
   }
 }
 
