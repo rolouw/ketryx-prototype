@@ -1526,16 +1526,22 @@ h1 {
   overflow: hidden;
   transition: width var(--motion), margin-left var(--motion);
 }
+.ai-dock {
+  --ai-w: 360px;
+}
+.ai-dock.is-wide {
+  --ai-w: 560px;
+}
 .ai-dock[data-open='true'] {
-  width: 360px;
+  width: var(--ai-w);
   margin-left: 0;
 }
 
 .ai-panel {
-  width: 360px; /* fixed, so its content doesn't reflow while the dock animates */
+  width: var(--ai-w); /* set on the panel too, so its content doesn't reflow while the dock opens */
   opacity: 0;
   transform: translateX(24px);
-  transition: opacity 0.2s ease, transform var(--motion);
+  transition: opacity 0.2s ease, transform var(--motion), width var(--motion);
   /* Fill the viewport, leaving the same 16px gap above and below as the main panel. */
   height: calc(100vh - 32px);
   overflow-y: auto;
@@ -1544,7 +1550,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 24px;
+  padding: 16px 16px 24px 24px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-panel);
@@ -1574,53 +1580,144 @@ h1 {
 .ai-panel-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 2px;
 }
 .ai-panel-head h2 {
-  margin: 0;
+  margin: 0 auto 0 0;
   font-size: 18px;
   font-weight: 700;
+}
+
+/* Intro and composer sit together in the middle of the panel. */
+.ai-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 32px;
+  padding-right: 8px;
 }
 
 .ai-intro {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 24px 8px;
-  text-align: center;
+  align-items: flex-start;
+  gap: 16px;
 }
 .ai-intro p {
+  max-width: 280px;
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.45;
   color: var(--muted);
 }
 
-.ai-input {
+.ai-composer {
   display: flex;
   flex-direction: column;
-  margin-top: auto;
-}
-.ai-input textarea {
-  padding: 14px 16px;
+  gap: 8px;
+  padding: 14px 12px 10px 16px;
   border: 1px solid var(--border);
-  border-radius: var(--r-field);
-  font-size: 14px;
+  border-radius: var(--r-card);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 63, 72, 0.06);
+}
+.ai-composer:focus-within {
+  border-color: var(--blue);
+}
+.ai-composer label {
+  display: flex;
+}
+.ai-composer textarea {
+  flex: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  line-height: 1.4;
   resize: none;
 }
+.ai-composer textarea:focus {
+  outline: 0;
+}
 
-/* Uses the shared .btn .btn-outline look (same as New folder); only centres the label in the full-width button. */
-.btn-ai {
+.ai-composer-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -8px;
+}
+.ai-composer-bar .icon-btn-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+}
+
+/* Same pattern as Sort by: the wrapper shows the value, an invisible select takes the clicks. */
+.ai-model {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  margin-left: 4px;
+  padding: 0 10px;
+  border-radius: var(--r-field);
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ai-model:hover {
+  background: var(--divider);
+}
+.ai-model:focus-within {
+  outline: 2px solid var(--blue);
+}
+.ai-model-name {
+  font-weight: 600;
+}
+.ai-model-effort {
+  color: var(--muted);
+}
+.ai-model svg {
+  pointer-events: none;
+}
+.ai-model select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ai-send {
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+.ai-send:hover:not(:disabled) {
+  background: var(--blue-dark);
+}
+.ai-send:disabled {
+  background: transparent;
+  color: var(--border);
+  cursor: default;
 }
 
 .disclaimer {
+  max-width: 300px;
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
   color: var(--muted);
-  text-align: center;
 }
 
 /* ---------- Narrow screens ---------- */
