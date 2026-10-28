@@ -159,7 +159,15 @@ export function App() {
             </nav>
 
             <div className="title-row">
-              <h1>{folder ? `${folder.label} Projects` : 'Projects'}</h1>
+              <div className="title-block">
+                {folder && (
+                  <a href={PROJECTS_HREF} className="back-link">
+                    <Icon d={ICONS.chevronLeft} size={16} strokeWidth={2.4} />
+                    Back to projects
+                  </a>
+                )}
+                <h1>{folder ? `${folder.label} Projects` : 'Projects'}</h1>
+              </div>
               <div className="actions">
                 {/* Folders don't nest, so New folder is only offered on the main Projects page. */}
                 {!folder && (

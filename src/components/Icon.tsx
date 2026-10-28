@@ -41,6 +41,7 @@ export const ICONS = {
   plus: 'M12 5v14M5 12h14',
   search: ['M20 20l-4-4', 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z'],
   chevronDown: 'M6 9l6 6 6-6',
+  chevronLeft: 'M15 6l-6 6 6 6',
   close: 'M6 6l12 12M18 6L6 18',
   whatsNew: ['M4 11h16v9H4z', 'M3 7h18v4H3z', 'M12 7v13', 'M12 7C10.5 4 7 4 7 6s3 1 5 1zM12 7c1.5-3 5-3 5-1s-3 1-5 1z'],
   help: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2.1-2.4 3.3', 'M12 17h.01'],

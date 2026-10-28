@@ -330,6 +330,29 @@ textarea {
   gap: 16px;
   margin-top: 16px;
 }
+.title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Small text button above a folder page's heading */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  margin-left: -2px; /* the chevron's own padding; lines the arrow up with the heading */
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.back-link:hover {
+  color: var(--blue-dark);
+  text-decoration: none;
+}
 
 h1 {
   margin: 0;
